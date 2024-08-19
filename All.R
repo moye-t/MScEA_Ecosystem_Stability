@@ -12,7 +12,7 @@ library(insight)
 library(plyr)
 
 #### Load in dataset ####
-All_sites <- read.csv("C:\\Users\\Thoma\\OneDrive\\Imperial\\Project\\Eco_frac_raw_data\\Final4\\All_sites.csv")
+All_sites <- read.csv("INSERT_FILE_PATH\\All_sites.csv")
 
 ##
 unique(All_sites$Site)
@@ -162,6 +162,10 @@ summary(BioDiv_Stab_lmer1)
 
 r.squaredGLMM(BioDiv_Stab_lmer1)
 
+library(rstanarm)
+bays.mod <- stan_lmer(temporal_stability ~ Alpha_Diversity + (Alpha_Diversity|Site), data = clean_data, REML = FALSE)
+summary(bays.mod)
+
 tab_model(BioDiv_Stab_lmer1)
 
 ### assess ###
@@ -178,10 +182,13 @@ ggplot(clean_data,aes(Alpha_Diversity, temporal_stability, col=Site )) + #
   geom_line(aes(y=fit2), linewidth=1, color ="Black") +
   geom_point(alpha = 0.2) +
   theme_bw() + ylim(0, 2.25) +ylab("Ecosystem stability (μ/σ)") + xlab("Alpha diversity (1 / Simpsons Index)") +
-  annotate("text", x= 0.7, y= 2.185, label= "Marginal R2 = 3.1e-8")+
+  annotate("text", x= 0.7, y= 2.185, label= "Marginal R2 < 0.01")+
   annotate("text", x= 0.7, y= 2.085, label= "Conditional R2 = 0.377")
 
 
+
+#plot(1:10, main=expression(3 %*% 10^-5))
+# plotmath help entry
 ###########################
 #### Fit Richness LMER ####
 ###########################
@@ -211,12 +218,8 @@ ggplot(clean_data,aes(Alpha_Richness, temporal_stability, col=Site )) + #
 ##
 ### assess ###
 
-# anova(Rich_Stab_lmer, Rich_Stab_lm)
-# 
-# rate<-compare_performance(BioDiv_Stab_lmer, BioDiv_Stab_lm)
-# rate
-# test<-test_performance(BioDiv_Stab_lmer, BioDiv_Stab_lm)
-# 
+bays.mod.2 <- stan_lmer(temporal_stability ~ Alpha_Richness + (Alpha_Richness|Site), data = clean_data, REML = FALSE)
+summary(bays.mod.2)
 
 #########################
 ### Species Asynchrony ###
@@ -266,6 +269,10 @@ ggplot(Spe_Asy_Data,aes(Species_Asyn, temporal_stability, col=Site )) + #
   annotate("text", x= 0.04, y= 2.05, label= "Marginal R2 = 0.130")+
   annotate("text", x= 0.04, y= 1.95, label= "Conditional R2 = 0.490")
 
+
+bays.mod.3 <- stan_lmer(temporal_stability ~ Species_Asyn + (Species_Asyn|Site), data = Spe_Asy_Data, REML = FALSE)
+summary(bays.mod.3)
+
 ############################
 ### Temporal variability ###
 ############################
@@ -302,21 +309,20 @@ tab_model(Temp_Spat_lm)
 
 ### Plot LMER ###
 ggplot(results,aes(plot.var, year.var)) + # 
-  geom_line(aes(y=fit), linewidth=0.8, alpha=0.5) +
-  geom_point(alpha = 0.2) +
+  #geom_line(aes(y=fit), linewidth=0.8, alpha=0.5) +
+  #geom_point(alpha = 0.2,) +
   theme_bw()  +ylab("Temporal (γ) variability") + xlab("Spatial (β) variability") +
   annotate("text", x= 100, y= 460, label= "p<0.05") +
-  annotate("text", x= 100, y= 440, label= "Adjusted R2 = 0.917")
+  annotate("text", x= 100, y= 440, label= "Adjusted R2 = 0.917")+
+  geom_text(aes(label = site))
 
 
 
-# # Extract 95% CIs using ggplot2
+# # Extract 95% CIs using ggplot2# # Extract siTRUE# # Extract 95% CIs using ggplot2# # Extract site95% CIs using ggplot2
 # library(ggplot2)
 # p <- qplot(plot.var, year.var,data=results)+stat_smooth(method = "lm")
 # (p.dat <- ggplot_build(p)$data[[2]])
 # 
-
-
 
 
 
@@ -469,3 +475,4 @@ ggplot(results,aes(plot.var, year.var)) + #
 
 
 
+will.spat.cov <- function()
