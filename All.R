@@ -12,7 +12,7 @@ library(insight)
 library(plyr)
 
 #### Load in dataset ####
-All_sites <- read.csv("INSERT_FILE_PATH\\All_sites.csv")
+All_sites <- read.csv("C:\\Users\\Thoma\\OneDrive\\Imperial\\Project\\Eco_frac_raw_data\\Final4\\All_sites.csv")
 
 ##
 unique(All_sites$Site)
@@ -94,13 +94,13 @@ Metrics <- Metrics %>%
 Metrics$Beta_Diversity<-Metrics$Gamma_Diversity / Metrics$Alpha_Diversity
 
 
-
 #########################
 ### Richness per plot ###
 #########################
 Alpha_richness <- All_sites %>%
   group_by(Plot, Site) %>%
-  summarise(Alpha_Richness = n_distinct(Species))
+  dplyr::summarise(Alpha_Richness = n_distinct(Species))
+
 ### Join ### 
 Metrics <- Metrics %>%
   left_join(Alpha_richness, by = c("Site", "Plot"))
@@ -109,7 +109,7 @@ Metrics <- Metrics %>%
 ###############################
 Gamma_Richness <- All_sites %>%#filter(Species!="leaf litter"|)
   group_by(Site) %>%
-  summarise(Gamma_Richness = n_distinct(Species))
+  dplyr::summarise(Gamma_Richness = n_distinct(Species))
 ### Join ###
 Metrics <- Metrics %>%
   left_join(Gamma_Richness, by="Site")
@@ -183,7 +183,8 @@ ggplot(clean_data,aes(Alpha_Diversity, temporal_stability, col=Site )) + #
   geom_point(alpha = 0.2) +
   theme_bw() + ylim(0, 2.25) +ylab("Ecosystem stability (μ/σ)") + xlab("Alpha diversity (1 / Simpsons Index)") +
   annotate("text", x= 0.7, y= 2.185, label= "Marginal R2 < 0.01")+
-  annotate("text", x= 0.7, y= 2.085, label= "Conditional R2 = 0.377")
+  annotate("text", x= 0.7, y= 2.085, label= "Conditional R2 = 0.377")+
+  scale_color_hue(labels = c("Boothby", "Knepp", "Right Hand Fork", "Silwood Park"))
 
 
 
@@ -214,7 +215,8 @@ ggplot(clean_data,aes(Alpha_Richness, temporal_stability, col=Site )) + #
   geom_point(alpha = 0.2) +
   theme_bw() + ylim(0, 2.25) +ylab("Ecosystem stability (μ/σ)") + xlab("Alpha Richness") +
   annotate("text", x= 40, y= 2.185, label= "Marginal R2 = 0.095")+
-  annotate("text", x= 40, y= 2.085, label= "Conditional R2 = 0.532")
+  annotate("text", x= 40, y= 2.085, label= "Conditional R2 = 0.532")+
+  scale_color_hue(labels = c("Boothby", "Knepp", "Right Hand Fork", "Silwood Park"))
 ##
 ### assess ###
 
@@ -224,7 +226,7 @@ summary(bays.mod.2)
 #########################
 ### Species Asynchrony ###
 #########################
-g_cover <- All_sites%>%group_by(Site, Plot)%>%summarise(Total.Cover=sum(Cover, na.rm = T), Count=n())
+g_cover <- All_sites%>%group_by(Site, Plot)%>%dplyr::summarise(Total.Cover=sum(Cover, na.rm = T), Count=n())
 
 s_cover <- All_sites%>%select(Site, Plot, Species,Cover)
 
@@ -267,7 +269,8 @@ ggplot(Spe_Asy_Data,aes(Species_Asyn, temporal_stability, col=Site )) + #
   geom_point(alpha = 0.2) +
   theme_bw() + ylim(0, 2.25) +ylab("Ecosystem stability (μ/σ)") + xlab("Species Asyncrhony") +
   annotate("text", x= 0.04, y= 2.05, label= "Marginal R2 = 0.130")+
-  annotate("text", x= 0.04, y= 1.95, label= "Conditional R2 = 0.490")
+  annotate("text", x= 0.04, y= 1.95, label= "Conditional R2 = 0.490")+
+  scale_color_hue(labels = c("Boothby", "Knepp", "Right Hand Fork", "Silwood Park"))
 
 
 bays.mod.3 <- stan_lmer(temporal_stability ~ Species_Asyn + (Species_Asyn|Site), data = Spe_Asy_Data, REML = FALSE)
